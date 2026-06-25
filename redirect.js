@@ -3,9 +3,15 @@ window.addEventListener('DOMContentLoaded',async function(){
         return new Promise(resolve=>setTimeout(resolve,dih))
     }
     function refreshtitle(title){
-        let t=document.createElement('title')
-        document.querySelector('head').append(t)
-        t.innerHTML=title
+        title=title.slice(0,1).toUpperCase()+title.slice(1)
+        if(!document.querySelector('title')){
+         let t=document.createElement('title')
+         document.querySelector('head').append(t)
+         t.innerHTML=title
+        }
+        else{
+         document.querySelector('title').innerHTML=title
+        }
     }
     let params=new URLSearchParams(window.location.search)
     let path=''
@@ -29,6 +35,16 @@ window.addEventListener('DOMContentLoaded',async function(){
         alert('No Path to redirect to. use ?key=path')
         
     }
+    let quick=false
+    if(params.get('quick')){
+        if(params.get('quick')=='true'){
+            quick=true
+        }
+        else{
+            quick=false
+        }
+    }
+
     if(path.startsWith("git_")){
         refreshtitle('redirecting to github')
         goto(`https://github.com/tromoSM/${path.split('git_',2)[1]}`)
@@ -39,17 +55,46 @@ window.addEventListener('DOMContentLoaded',async function(){
     }
     
     else if(path!=''){
-     await fetch("https://raw.githubusercontent.com/tromoSM/tromoSM-assets/main/redirects/redirects.json").then(main=>main.json()).then(main=>{
+     await fetch("https://raw.githubusercontent.com/tromoSM/tromoSM-assets/refs/heads/main/redirects/redirects.json").then(main=>main.json()).then(async main=>{
         if(path.startsWith('download_')){
+            let link
+            if(params.get('type')){
+                 link=`${main.redirects.download[path.split('download_',2)[1]][params.get('type')][params.get('os')]}`
+            }
+            else{
+                 link=`${main.redirects.download[path.split('download_',2)[1]][params.get('os')]}`
+                }
+            if(!quick){
+                if(main.branding.icon.repos[path.split('download_',2)[1]]){
+                    console.log('use splash:true')
+                    let wrp=document.createElement('wrap')
+                    let splashmark=document.createElement('img')
+                    splashmark.setAttribute('splashbg','')
+                    splashmark.src=main.branding.icon.structure.replaceAll(main.branding.icon.replace,path.split('download_',2)[1].toUpperCase())
+                    let p=document.createElement('p')
+                    p.innerText=`${path.split('download_',2)[1]} Download`
+                    wrp.append(splashmark,p)
+                    document.body.append(wrp)
+                    //
+                    let maint=document.createElement('p')
+                    maint.innerHTML='Your download is starting...'
+                    maint.setAttribute('status','')
+                    document.body.append(maint)
+                    //
+                    let desc=document.createElement('p')
+                    desc.innerHTML=`If your download doesn't start automatically <a href='${link}'>click here</a>`
+                    desc.setAttribute('fallb','')
+                    document.body.append(desc)
+                    desc.setAttribute('hidden','')
+                }
+            }
             refreshtitle('starting download')
             try{
-                if(params.get('type')){
-                 goto(`${main.redirects.download[path.split('download_',2)[1]][params.get('type')][params.get('os')]}`)
-                }
-                else{
-                 goto(`${main.redirects.download[path.split('download_',2)[1]][params.get('os')]}`)
-
-                }
+                goto(link)
+                await sleep(500)
+                document.querySelector('[status]').innerHTML='Your download has started.'
+                document.querySelector('[fallb]')?.removeAttribute('hidden')
+                refreshtitle('download started')
             }
             catch(er){
                 alert(path+" is not valid.\n check console for more info")
