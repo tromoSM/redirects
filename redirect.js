@@ -58,8 +58,10 @@ window.addEventListener('DOMContentLoaded',async function(){
      await fetch("https://raw.githubusercontent.com/tromoSM/tromoSM-assets/refs/heads/main/redirects/redirects.json").then(main=>main.json()).then(async main=>{
         if(path.startsWith('download_')){
             let link
+            let type='unavailable'
             if(params.get('type')){
                  link=`${main.redirects.download[path.split('download_',2)[1]][params.get('type')][params.get('os')]}`
+                 type=params.get('type')
             }
             else{
                  link=`${main.redirects.download[path.split('download_',2)[1]][params.get('os')]}`
@@ -86,14 +88,25 @@ window.addEventListener('DOMContentLoaded',async function(){
                     desc.setAttribute('fallb','')
                     document.body.append(desc)
                     desc.setAttribute('hidden','')
+                    // 
+                    let infop=document.createElement('p')
+                    infop.innerHTML=`
+                    <span>Version :</span> ${main.redirects.download[path.split('download_',2)[1]]["version"]}<br>
+                    <span>Release Type : ${type}</span><br>
+                    <span>OS : </span>${params.get('os')}
+                    `
+                    infop.setAttribute('infobar','')
+                    document.body.append(infop)
                 }
             }
             refreshtitle('starting download')
             try{
                 goto(link)
                 await sleep(500)
+                if(!quick){
                 document.querySelector('[status]').innerHTML='Your download has started.'
                 document.querySelector('[fallb]')?.removeAttribute('hidden')
+                }
                 refreshtitle('download started')
             }
             catch(er){
