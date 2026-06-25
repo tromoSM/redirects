@@ -86,6 +86,11 @@ window.addEventListener('DOMContentLoaded',async function(){
                     desc.setAttribute('fallb','')
                     document.body.append(desc)
                     desc.setAttribute('hidden','')
+                    // 
+                    let infop=document.createElement('p')
+                    infop.innerHTML`
+                    <span></span>
+                    `
                 }
             }
             refreshtitle('starting download')
