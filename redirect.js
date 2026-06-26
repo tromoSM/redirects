@@ -108,6 +108,12 @@ window.addEventListener('DOMContentLoaded',async function(){
                 document.querySelector('[fallb]')?.removeAttribute('hidden')
                 }
                 refreshtitle('download started')
+                await sleep(1000)
+                if(params.get('closeafter')){
+                    if(params.get('closeafter')=='true'){
+                      window.close()
+                    }
+                }
             }
             catch(er){
                 alert(path+" is not valid.\n check console for more info")
